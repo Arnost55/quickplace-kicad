@@ -13,18 +13,58 @@ def box(obj):
 def polygon(chain): return tuple(xy(chain.CPoint(i)) for i in range(chain.PointCount()))
 
 
+def _enclosing_rect_outline(board, footprints):
+    """Choose one unambiguous Edge.Cuts rectangle containing all footprint origins."""
+    drawings=[d for d in board.GetDrawings() if d.GetLayer()==k.Edge_Cuts]
+    centers=[xy(fp.GetPosition()) for fp in footprints]
+    candidates=[]
+    for drawing in drawings:
+        if drawing.GetShape()!=k.SHAPE_T_RECT:
+            continue
+        start,end=xy(drawing.GetStart()),xy(drawing.GetEnd())
+        left,right=sorted((start[0],end[0])); top,bottom=sorted((start[1],end[1]))
+        if right-left<=0 or bottom-top<=0:
+            continue
+        points=((left,top),(right,top),(right,bottom),(left,bottom))
+        if centers and all(left<=x<=right and top<=y<=bottom for x,y in centers):
+            candidates.append((drawing,points,(left,top,right,bottom)))
+    if len(candidates)!=1:
+        raise PlacementError('Edge.Cuts does not provide one unique rectangular outline containing all footprints')
+    selected,points,(left,top,right,bottom)=candidates[0]
+    tolerance=max(mm(selected.GetWidth()),0.1)
+    for drawing in drawings:
+        if drawing is selected:
+            continue
+        bounds=box(drawing)
+        bx0=min(x for x,y in bounds); by0=min(y for x,y in bounds)
+        bx1=max(x for x,y in bounds); by1=max(y for x,y in bounds)
+        if bx1<left-tolerance or bx0>right+tolerance or by1<top-tolerance or by0>bottom+tolerance:
+            continue
+        if drawing.GetShape()==k.SHAPE_T_SEGMENT:
+            a,bp=xy(drawing.GetStart()),xy(drawing.GetEnd())
+            def on_boundary(p):
+                x,y=p
+                return ((abs(y-top)<=tolerance or abs(y-bottom)<=tolerance) and left-tolerance<=x<=right+tolerance) or ((abs(x-left)<=tolerance or abs(x-right)<=tolerance) and top-tolerance<=y<=bottom+tolerance)
+            if on_boundary(a) and on_boundary(bp):
+                continue
+        raise PlacementError('Additional Edge.Cuts geometry intersects the selected board outline')
+    return points
+
+
 def read_board(board):
     if board is None: raise PlacementError('No PCB Editor board is open')
     for drawing in board.GetDrawings():
         if drawing.GetLayer()==k.Edge_Cuts and drawing.GetShape() not in (k.SHAPE_T_SEGMENT,k.SHAPE_T_RECT,k.SHAPE_T_RECTANGLE,k.SHAPE_T_POLY):
             raise PlacementError('Curved Edge.Cuts geometry is not safely supported')
-    poly=k.SHAPE_POLY_SET()
-    if not board.GetBoardPolygonOutlines(poly,False) or poly.OutlineCount()!=1:
-        raise PlacementError('Edge.Cuts must form exactly one closed, valid outer board outline')
-    outer=polygon(poly.COutline(0))
-    holes=tuple(polygon(poly.CHole(0,i)) for i in range(poly.HoleCount(0)))
-    outline=Outline(outer,holes)
     footprints=list(board.GetFootprints())
+    poly=k.SHAPE_POLY_SET()
+    if board.GetBoardPolygonOutlines(poly,False) and poly.OutlineCount()==1:
+        outer=polygon(poly.COutline(0))
+        holes=tuple(polygon(poly.CHole(0,i)) for i in range(poly.HoleCount(0)))
+    else:
+        outer=_enclosing_rect_outline(board,footprints)
+        holes=()
+    outline=Outline(outer,holes)
     items=[]; warnings=[]
     tracks=list(board.GetTracks())
     if any(isinstance(t,k.PCB_ARC) for t in tracks):
