@@ -3,8 +3,8 @@
 try:
     import pcbnew
 except ImportError:
-    pass
-else:
-    if pcbnew.GetBoard() is not None:
-        from .plugin import QuickPlacePlugin
-        QuickPlacePlugin().register()
+    pcbnew = None
+
+if pcbnew is not None and pcbnew.GetBoard() is not None:
+    from .plugin import QuickPlacePlugin
+    QuickPlacePlugin().register()

@@ -18,7 +18,7 @@ This is a proper PCM archive with the required root `metadata.json` and `plugins
 1. Install KiCad **10 stable**. Tested against KiCad **10.0.6**; other minor versions should be tested before production use.
 2. Download and extract `dist/quickplace-kicad10.zip`. Copy the enclosed `quickplace` folder (not its individual files) into `%USERPROFILE%\\Documents\\KiCad\\10.0\\scripting\\plugins`. The actual Documents folder may be redirected: use the plugin folder button in **PCB Editor → Preferences → PCB Editor → Plugins** if unsure.
 3. Alternatively run `powershell -ExecutionPolicy Bypass -File .\\install.ps1` from this repository, optionally passing `-PluginDirectory 'your\\plugins\\path'`. The installer refuses to overwrite an existing installation.
-4. Restart PCB Editor. Enable QuickPlace under **Preferences → PCB Editor → Plugins** if necessary. Select **Tools → External Plugins → QuickPlace Now** or its toolbar icon.
+4. Open a board, then choose **Refresh Plugins** from the plugin menu (the menu may be labeled **Tools → Plugins** in your build; the KiCad 10 manual calls the Action Plugin submenu **Tools → External Plugins**). QuickPlace should appear as **QuickPlace Now** after the refresh; restart PCB Editor if it does not. The screenshot's **fast route autorouter** is a separate plugin: QuickPlace places footprints and does not autoroute tracks. If QuickPlace is missing, open **Preferences → PCB Editor → Action Plugins → Open Plugin Directory** and ensure the installed `quickplace` folder contains `__init__.py`, `plugin.py`, `engine.py`, and `adapter.py`.
 
 No administrator permission, network access, or separate Python installation is needed after downloading either package.
 
