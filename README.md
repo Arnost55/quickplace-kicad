@@ -5,11 +5,22 @@ QuickPlace is an offline PCB Editor Action Plugin for conservative, connectivity
 ## Install on Windows 11
 
 1. Install KiCad **10 stable**. Tested against KiCad **10.0.6**; other minor versions should be tested before production use.
-2. Download and extract `dist/quickplace-kicad10.zip`. Copy the enclosed `quickplace` folder (not its individual files) into `%USERPROFILE%\Documents\KiCad\10.0\scripting\plugins`. The actual Documents folder may be redirected: use the plugin folder button in **PCB Editor → Preferences → PCB Editor → Plugins** if unsure.
-3. Alternatively run `powershell -ExecutionPolicy Bypass -File .\install.ps1` from this repository, optionally passing `-PluginDirectory 'your\plugins\path'`. The installer refuses to overwrite an existing installation.
+### Install directly from the repository (KiCad Plugin and Content Manager)
+
+1. Download the `quickplace-pcm.zip` asset from the [GitHub Releases page](https://github.com/Arnost55/quickplace-kicad/releases). If there is no release yet, download `dist/quickplace-pcm.zip` from the repository's Code page (open `dist/` and choose the file's **Download raw file** action).
+2. In KiCad, open **Plugin and Content Manager** from the **Tools** menu and choose **Install from File…**.
+3. Select `quickplace-pcm.zip`, confirm installation, then restart PCB Editor if requested.
+
+This is a proper PCM archive with the required root `metadata.json` and `plugins/` layout. The GitHub repository itself is not a PCM index, so it will not appear automatically in the PCM browser. The archive can be installed directly using **Install from File…**; discoverability in the browser requires a repository index (or acceptance into KiCad's official addon index).
+
+### Manual Action Plugin installation
+
+1. Install KiCad **10 stable**. Tested against KiCad **10.0.6**; other minor versions should be tested before production use.
+2. Download and extract `dist/quickplace-kicad10.zip`. Copy the enclosed `quickplace` folder (not its individual files) into `%USERPROFILE%\\Documents\\KiCad\\10.0\\scripting\\plugins`. The actual Documents folder may be redirected: use the plugin folder button in **PCB Editor → Preferences → PCB Editor → Plugins** if unsure.
+3. Alternatively run `powershell -ExecutionPolicy Bypass -File .\\install.ps1` from this repository, optionally passing `-PluginDirectory 'your\\plugins\\path'`. The installer refuses to overwrite an existing installation.
 4. Restart PCB Editor. Enable QuickPlace under **Preferences → PCB Editor → Plugins** if necessary. Select **Tools → External Plugins → QuickPlace Now** or its toolbar icon.
 
-The ZIP is intentionally a manual-install Action Plugin archive, not a KiCad Plugin and Content Manager package. No administrator permission, network access, or separate Python installation is needed.
+No administrator permission, network access, or separate Python installation is needed after downloading either package.
 
 ## Use
 
@@ -25,7 +36,7 @@ The planner is deterministic in Instant mode; Optimize uses a fixed random seed 
 
 ## Development
 
-Run unit tests with `python -m unittest discover -s tests -v`. Run real-binding smoke tests using `"C:\Program Files\KiCad\10.0\bin\python.exe" -m unittest discover -s tests -v`. Rebuild the example with the bundled Python: `"C:\Program Files\KiCad\10.0\bin\python.exe" scripts\make_example.py`. Run `python benchmarks\benchmark.py` to print JSON results for 10, 20, 50 and 100 footprints. Rebuild the archive with `python scripts\package.py`.
+Run unit tests with `python -m unittest discover -s tests -v`. Run real-binding smoke tests using `"C:\Program Files\KiCad\10.0\bin\python.exe" -m unittest discover -s tests -v`. Rebuild the example with the bundled Python: `"C:\Program Files\KiCad\10.0\bin\python.exe" scripts\make_example.py`. Run `python benchmarks\benchmark.py` to print JSON results for 10, 20, 50 and 100 footprints. Rebuild both archives with `python scripts\package.py`. The output `dist/quickplace-pcm.zip` uses the official KiCad PCM archive layout; `dist/quickplace-kicad10.zip` remains the manual scripting-folder archive. The repository root `metadata.json` is the package manifest; the PCM archive includes a copy with no repository-only download hash/URL fields.
 
 The source is separated into `quickplace/engine.py` (pure Python geometry, graph, planner), `quickplace/adapter.py` (KiCad bridge) and `quickplace/plugin.py` (wx interface and registration). The sample board is `examples/quickplace_demo.kicad_pcb`.
 

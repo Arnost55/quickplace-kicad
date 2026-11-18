@@ -1,0 +1,33 @@
+{
+  "$schema": "https://go.kicad.org/pcm/schemas/v2",
+  "name": "QuickPlace",
+  "description": "Offline, connectivity-aware automatic footprint placement for KiCad 10.",
+  "description_full": "QuickPlace is a conservative, offline KiCad PCB Editor action plugin that proposes and applies deterministic footprint placements using board outlines, connectivity, courtyards, fixed footprints and conservative obstacle checks. It does not autoroute or guarantee DRC success. Save a backup before applying; Undo is not guaranteed by KiCad's legacy Python API. Tested with KiCad 10.0.6.",
+  "identifier": "com.github.arnost55.quickplace-kicad",
+  "type": "plugin",
+  "author": {
+    "name": "Arnost55",
+    "contact": {
+      "web": "https://github.com/Arnost55/quickplace-kicad"
+    }
+  },
+  "maintainer": {
+    "name": "Arnost55",
+    "contact": {
+      "web": "https://github.com/Arnost55/quickplace-kicad/issues"
+    }
+  },
+  "license": "MIT",
+  "resources": {
+    "homepage": "https://github.com/Arnost55/quickplace-kicad",
+    "github": "https://github.com/Arnost55/quickplace-kicad"
+  },
+  "versions": [
+    {
+      "version": "1.0.0",
+      "status": "testing",
+      "kicad_version": "10.0",
+      "runtime": "swig"
+    }
+  ]
+}
